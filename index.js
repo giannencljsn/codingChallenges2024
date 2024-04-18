@@ -1,36 +1,41 @@
 $(document).ready(function () {
     //Validate json file
-        try{
-            JSON.parse(JSON.stringify(data))
-            console.log("Source is valid json.");
-            //select table body to append rows
-            var table = $('#example').DataTable();
-            var authorsData = data.authors;
-
-            //rendering json data
-            authorsData.forEach(function(author){
-            var row = $('<tr>');
-            row.append($('<td>').text(author.id));
-            row.append($('<td>').text(author.first_name + " "+ author.last_name));
-          
-            //variable to store book titles
-            var bookTitles = ""; 
-            var salesPerBook = "";
-            var totalPurchases = 0 
-                author.books.forEach(book => {    
-                    bookTitles += book.title + "<br>";
-                    salesPerBook += book.purchases.length + "<br>";
-                    totalPurchases += book.purchases.length;
-                    
-                });
-            row.append($('<td>').html(bookTitles));
-            row.append($('<td>').html(salesPerBook));
-            row.append($('<td>').html(totalPurchases));
-            //Append row to the table 
-            table.row.add(row).draw();
+    try {
+        $.getJSON("data.json", function (data) {
+            let jsonData = JSON.parse(JSON.stringify(data));
+            console.log("Source is valid JSON.");
+            let table = $('#example').DataTable();
+            let authorsData = jsonData.authors;
         
+            authorsData.forEach(function(author) {
+                let row = $('<tr>');
+                if(!author.books.length){
+                    let bookIsFalse = author.books.length;
+                    row.append($('<td>').text(author.id));
+                    row.append($('<td>').text(author.first_name + " " + author.last_name));
+                    row.append($('<td>').text(bookIsFalse));
+                    row.append($('<td>').text(bookIsFalse));
+                    table.row.add(row).draw();
+                    
+                }
+                author.books.forEach(book => {
+                    let row = $('<tr>');
+                    let authorID = author.id;
+                    let authorName = author.first_name + " " + author.last_name;
+                    let bookTitle = book.title;
+                    let totalPurchases = book.purchases.length;
+                    row.append($('<td>').text(authorID));
+                    row.append($('<td>').text(authorName));
+                    row.append($('<td>').text(bookTitle));
+                    row.append($('<td>').text(totalPurchases));
+                    
+                    table.row.add(row).draw();
+                });
             });
-        }catch (error){
-            alert("Invalid JSON data: ", error);
-        }     
-    });
+            }
+        );
+        
+    } catch (error) {
+        alert("Invalid JSON data: " + error.message);
+    }
+});
